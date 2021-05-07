@@ -1,0 +1,215 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    <p> 0.35% of Principal for Ghs transfers (Min GHS20.00 Max GHS60.00 )
+        and 1.0% of the principal for local foreign currency(USD,GBP,EURO), 
+        (Min USD20.00, Max USD200.00</p>
+    <script>
+
+       //Calculate Commission currency == 'GHS'   //$('#commission').setValue(total);
+
+       function calcCommission(){
+  var amount = $("#transfer_amount").getValue();
+  var currency = $("#customer_currency").getValue();
+  var codeGHS = 0.0035;
+  var codeDols = 0.01;
+  var newAmount = parseFloat($("#transfer_amount").getValue()).toFixed(2);
+  var rate = $("#exchange_rate").getValue();
+  
+   console.log(total);
+if (amount !== 0 && currency == "GHS"){
+    var total = (codeGHS * newAmount).toFixed(2);
+    if (total < 20){
+        $('#commission').setValue(20);
+    } else if (total > 60){
+        $('#commission').setValue(60);
+    } else {
+      $('#commission').setValue(total); 
+    }
+   
+    } else if (amount !== 0 && currency == "USD"){
+    var total = (codeDols * newAmount).toFixed(2);
+    if (total < 20){
+        $('#commission').setValue(20);
+    }else if (total > 200){
+        $('#commission').setValue(200);
+    } else {
+      $('#commission').setValue(total); 
+    }
+      
+    } else if (amount !== 0 && (currency !== "USD" && currency !== "GHS")){
+    var total = (rate * newAmount).toFixed(2);
+    var newTotal = (codeDols * total).toFixed(2);
+    if (newTotal < 20){
+        $('#commission').setValue(20);
+    }else if (newTotal > 200){
+        $('#commission').setValue(200);
+    } else {
+      $('#commission').setValue(newTotal); 
+    }
+      
+    }
+ 
+}   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+//Calculate Commission currency == 'GHS'
+
+function calcCommission(){
+  var amount = $("#transfer_amount").getValue();
+if (amount =! 0){
+   var code = 0.0035;
+   var newAmount = parseFloat($("#transfer_amount").getValue()).toFixed(2);
+   var total = (code * newAmount).toFixed(2);
+   console.log(total);
+   $('#commission').setValue(total);
+    } else {
+   /* total = 0.01 * newAmount;
+    $('#commission').setValue(total); */
+      
+    }
+ 
+}   
+
+*/
+
+
+
+
+//API call to get customer account details.
+function getAccountDetails(acctno) {
+  return new Promise ((resolve, reject)=> {
+  	$.ajax({
+    url: host + "/api/1.0/" + ws + "/plugin-accessbank/postingservice/getcustomerdetails/" + acctno,
+    data: {},
+    type: "GET",                              
+    beforeSend: function(xhr){
+      xhr.setRequestHeader('Authorization', 'Bearer '+ token);
+      dDDynaformUtil.showLoading(); 
+    },
+    success: function(resp) { 
+      if (resp.ResponseCode == '00' && resp.CustomerAcctsDetail.CustomerAcctsDetail){
+        console.log(resp);
+        resolve(resp);       
+      } 
+      else {
+        reject('An error occurred retreiving the details for this account number provided!');
+      }
+      dDDynaformUtil.hideLoading(); 
+    },
+    error: function(err) {
+      reject('An error occured looking up the account');
+      dDDynaformUtil.hideLoading(); 
+    }
+  });
+  });
+}
+/*
+function setCustomerDetails(resp){
+  	let currency = resp.CustomerAcctsDetail.CustomerAcctsDetail.currencyCode;
+  	if(currency == 'NGN'){
+      clearCustomerDetails();
+  	  clearMandate();
+      swal("You can't perform this transaction on a Naira account");
+    }else{
+      var acctOfficerDetails;
+     if(resp.CustomerAcctsDetail.CustomerAcctsDetail.AccountOfficer) {
+          acctOfficerDetails = resp.CustomerAcctsDetail.CustomerAcctsDetail.AccountOfficer.split(":");
+        }
+        else {
+          acctOfficerDetails = ['N/A','N/A','N/A','N/A'];
+        }
+      $('#customer_name').setValue(resp.CustomerAcctsDetail.CustomerAcctsDetail.accountName);
+      $('#customer_id').setValue(resp.CustomerAcctsDetail.CustomerAcctsDetail.custID);
+      $('#net_balance').setValue(resp.CustomerAcctsDetail.CustomerAcctsDetail.netBalance);
+      $('#account_status').setValue(resp.CustomerAcctsDetail.CustomerAcctsDetail.AccountStatus);
+      $('#account_type').setValue(resp.CustomerAcctsDetail.CustomerAcctsDetail.AccountClassType);
+      $('#phone_number').setValue(resp.CustomerAcctsDetail.CustomerAcctsDetail.phone);
+      $('#customer_branch_name').setValue(resp.CustomerAcctsDetail.CustomerAcctsDetail.branchName)
+      $('#branch_code').setValue(resp.CustomerAcctsDetail.CustomerAcctsDetail.branchCode);
+       $('#od_limit').setValue(resp.CustomerAcctsDetail.CustomerAcctsDetail.oDLimit);
+      $('#pnd_reason').setValue(resp.CustomerAcctsDetail.CustomerAcctsDetail.PNDReasonANDCode);
+      $('#customer_currency').setValue(resp.CustomerAcctsDetail.CustomerAcctsDetail.currencyCode)
+      $('#email').setValue(resp.CustomerAcctsDetail.CustomerAcctsDetail.e_mail);
+      $('#account_officer_email').setValue(acctOfficerDetails[3] ? acctOfficerDetails[3] : "");
+  	$('#address').setValue(resp.CustomerAcctsDetail.CustomerAcctsDetail.strAdd1 + "\n" +
+                               resp.CustomerAcctsDetail.CustomerAcctsDetail.strState
+                             );
+              checkStaffAccount(resp.CustomerAcctsDetail.CustomerAcctsDetail.staff);
+
+    }
+};
+
+
+
+function clearCustomerDetails(){
+  $('#customer_name').setValue('');
+  $('#customer_id').setValue('');
+  $('#net_balance').setValue('');
+  $('#account_status').setValue('');
+  $('#account_type').setValue('');
+  $('#branch_code').setValue('');
+  $('#phone_number').setValue('');
+  $('#email').setValue('');
+  $('#address').setValue('');
+  $('#customer_currency').setValue("");
+}
+function clearMandate(){
+	$("#mandatePanel").hide();
+}
+function checkNaira(currency){
+    if(currency == 'NGN'){
+      clearCustomerDetails();
+  	  clearMandate();
+      $('#customer_currency').setValue("");
+      swal("You can't perform this transaction on a Naira account");
+    }
+}
+
+$('#account_number').setOnchange(function(){
+var transfer_type =  $('#transfer_type').getValue(); 
+ clearBeneficiaryDetails();
+  clearCustomerDetails();
+  clearMandate();
+  $('#transfer_type').setValue('');
+   $('#transfer_amount').setValue('');
+  $('#offshore_charge').setValue('');
+  getAccountDetails($("#account_number").getValue()).then((resp)=>{
+  setCustomerDetails(resp);
+       var customer_currency = $('#customer_currency').getValue();
+    }).catch((msg) => {
+    	swal(msg);
+    });
+});
+
+
+
+*/
+
+
+
+    </script>
+</body>
+</html>
