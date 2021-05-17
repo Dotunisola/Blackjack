@@ -49,9 +49,9 @@ document
   .addEventListener("click", blackjackDeal);
 
 function gameInstruction() {
-  let instruction1 = "Player presses Hit Button first to pick Random cards." 
-   let instruction2 = "The total points of the selected cards must not be more than '21'."
-   let instruction3 = "Player presses Stand button to enable Computer plays and the presses Deal button after computer plays to start fresh game";
+  let instruction1 = "Player presses HIT BUTTON first, to pick Random cards. " 
+   let instruction2 = "The total points of the selected cards must not be more than '21'. "
+   let instruction3 = "Player presses STAND BUTTON to enable Computer play and the presses DEAL after computer plays to start fresh game ";
   alert(instruction1 + instruction2 + instruction3);
 }
 gameInstruction();
